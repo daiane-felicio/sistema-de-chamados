@@ -1,0 +1,44 @@
+[
+    {
+        "codigo": "001",
+        "categoria": "Suporte",
+        "prioridade": "Alta",
+        "descricao": "Cliente sem conexão com a internet",
+        "status": "Aberto"
+    },
+    {
+        "codigo": "002",
+        "categoria": "Manutenção",
+        "prioridade": "Média",
+        "descricao": "Computador não liga",
+        "status": "Aberto"
+    },
+    {
+        "codigo": "004",
+        "categoria": "sva",
+        "prioridade": "baixa",
+        "descricao": "sem acesso ao aap tv",
+        "status": "fechado"
+    },
+    {
+        "codigo": "005",
+        "categoria": "suport",
+        "prioridade": "alta",
+        "descricao": "sem acesso",
+        "status": "aberto"
+    },
+    {
+        "codigo": "006",
+        "categoria": "bug",
+        "prioridade": "baixa",
+        "descricao": "tentou entra em site proibido",
+        "status": "aberto"
+    },
+    {
+        "codigo": "007",
+        "categoria": "",
+        "prioridade": "",
+        "descricao": "",
+        "status": ""
+    }
+]
