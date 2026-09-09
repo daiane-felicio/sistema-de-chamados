@@ -4,7 +4,7 @@
         "categoria": "Suporte",
         "prioridade": "Alta",
         "descricao": "Cliente sem conexão com a internet",
-        "status": "Aberto"
+        "status": "fechado"
     },
     {
         "codigo": "002",
@@ -18,7 +18,7 @@
         "categoria": "sva",
         "prioridade": "baixa",
         "descricao": "sem acesso ao aap tv",
-        "status": "fechado"
+        "status": "aberto"
     },
     {
         "codigo": "005",

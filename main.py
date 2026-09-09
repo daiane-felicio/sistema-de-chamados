@@ -42,20 +42,43 @@ def adicionar_chamado(chamados, codigo, categoria, prioridade, descricao, status
         print(f"Já existe um chamado com o código {codigo}.")
         return
     
+    if not codigo or not categoria or not prioridade or not descricao or not status:
+        print("Todos os campos são obrigatórios. Chamado não adicionado.")
+        return
+    
+    prioridades = ["Baixa", "Média", "Alta"]
+
+    if prioridade.lower() not in [p.lower() for p in prioridades]:
+        print(f"Prioridade inválida. Escolha entre: {', '.join(prioridades)}.")
+        return
+    
+    status_validos = ["Aberto", "Em andamento", "Resolvido", "Fechado"]
+    
+    if status.lower() not in [s.lower() for s in status_validos]:
+        print(f"Status inválido. Escolha entre: {', '.join(status_validos)}.")
+        return
+    
+    
     novo_chamado = Chamado(codigo, categoria, prioridade, descricao, status)
     chamados.append(novo_chamado)
     print(f"Chamado {codigo} adicionado com sucesso.")
 
 
 def atualizar_status_por_codigo(chamados, codigo, novo_status):
+    status_validos = ["Aberto", "Em andamento", "Resolvido", "Fechado"]
+
+    if novo_status.lower() not in [s.lower() for s in status_validos]:
+        print(f"Status inválido. Escolha entre: {', '.join(status_validos)}.")
+        return
+
     chamado = buscar_chamado(chamados, codigo)
+
     if chamado:
         chamado.atualizar_status(novo_status)
     else:
         print(f"Chamado com código {codigo} não encontrado.")
-        
-
-
+    
+    
 def remover_chamado(chamados, codigo):
     chamado = buscar_chamado(chamados, codigo)
     if chamado:
