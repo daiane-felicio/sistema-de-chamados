@@ -59,6 +59,10 @@ def adicionar_chamado(chamados, codigo, categoria, prioridade, descricao, status
         return
     
     
+    prioridade = prioridade.capitalize()
+    status = status.capitalize()
+
+    
     novo_chamado = Chamado(codigo, categoria, prioridade, descricao, status)
     chamados.append(novo_chamado)
     print(f"Chamado {codigo} adicionado com sucesso.")
@@ -70,6 +74,8 @@ def atualizar_status_por_codigo(chamados, codigo, novo_status):
     if novo_status.lower() not in [s.lower() for s in status_validos]:
         print(f"Status inválido. Escolha entre: {', '.join(status_validos)}.")
         return
+
+    novo_status = novo_status.capitalize()
 
     chamado = buscar_chamado(chamados, codigo)
 
@@ -94,19 +100,35 @@ def salvar_chamados(chamados):
         
 
 def carregar_chamados():
-    with open("dados.json", "r", encoding="utf-8") as arquivo:
-        dados = json.load(arquivo)
-        chamados_carregados = []
-        for item in dados:
+    try:
+        with open("dados.json", "r", encoding="utf-8") as arquivo:
+            dados = json.load(arquivo)
+
+    except FileNotFoundError:
+        print("Arquivo de dados não encontrado. Iniciando sistema vazio.")
+        return []
+
+    except json.JSONDecodeError:
+        print("Arquivo de dados vazio ou inválido. Iniciando sistema vazio.")
+        return []
+
+    chamados_carregados = []
+
+    for item in dados:
+        try:
             chamado = Chamado(
                 item["codigo"],
                 item["categoria"],
-                item["prioridade"],
+                item["prioridade"].capitalize(),
                 item["descricao"],
-                item["status"]
+                item["status"].capitalize()
             )
-            
+
             chamados_carregados.append(chamado)
+
+        except KeyError:
+            print("Registro inválido encontrado no arquivo. Ignorando chamado.")
+            
         return chamados_carregados
   
   
