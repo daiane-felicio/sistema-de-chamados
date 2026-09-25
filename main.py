@@ -69,13 +69,13 @@ def adicionar_chamado(chamados, codigo, categoria, prioridade, descricao, status
 
 
 def atualizar_status_por_codigo(chamados, codigo, novo_status):
-    status_validos = ["Aberto", "Em andamento", "Resolvido", "Fechado"]
-
-    if novo_status.lower() not in [s.lower() for s in status_validos]:
-        print(f"Status inválido. Escolha entre: {', '.join(status_validos)}.")
+    
+    if not validar_status(novo_status):
+        print("Status inválido. Escolha entre: Aberto, Em andamento, Resolvido, Fechado.")
         return
 
-    novo_status = novo_status.capitalize()
+
+    novo_status = novo_status.strip().capitalize()
 
     chamado = buscar_chamado(chamados, codigo)
 
@@ -83,6 +83,12 @@ def atualizar_status_por_codigo(chamados, codigo, novo_status):
         chamado.atualizar_status(novo_status)
     else:
         print(f"Chamado com código {codigo} não encontrado.")
+        
+
+def validar_status(status):
+    status_validos = ["Aberto", "Em andamento", "Resolvido", "Fechado"]
+    status = status.strip().capitalize()
+    return status in status_validos    
     
     
 def remover_chamado(chamados, codigo):
