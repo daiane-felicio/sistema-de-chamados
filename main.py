@@ -1,4 +1,5 @@
-import json
+import database as db
+
 
 class Chamado:
     def __init__(self, codigo, categoria, prioridade, descricao, status):
@@ -24,7 +25,18 @@ class Chamado:
         print(f"Status do chamado {self.codigo} atualizado para: {self.status}")
         
 
+def linha_para_chamado(linha):
+    id_, codigo, categoria, prioridade, descricao, status = linha
 
+    return Chamado(
+        codigo,
+        categoria,
+        prioridade,
+        descricao,
+        status
+    )
+    
+    
 def buscar_chamado(chamados,codigo):
     for chamado in chamados:
         if chamado.codigo == codigo:
@@ -64,7 +76,18 @@ def adicionar_chamado(chamados, codigo, categoria, prioridade, descricao, status
 
     
     novo_chamado = Chamado(codigo, categoria, prioridade, descricao, status)
+    
     chamados.append(novo_chamado)
+    
+    db.adicionar_chamado(
+        codigo, 
+        categoria, 
+        prioridade, 
+        descricao, 
+        status
+        
+    )
+    
     print(f"Chamado {codigo} adicionado com sucesso.")
 
 
@@ -81,6 +104,7 @@ def atualizar_status_por_codigo(chamados, codigo, novo_status):
 
     if chamado:
         chamado.atualizar_status(novo_status)
+        db.atualizar_status(codigo, novo_status)
     else:
         print(f"Chamado com código {codigo} não encontrado.")
         
@@ -95,50 +119,18 @@ def remover_chamado(chamados, codigo):
     chamado = buscar_chamado(chamados, codigo)
     if chamado:
         chamados.remove(chamado)
+        db.excluir_chamado(codigo)
         print(f"Chamado {codigo} removido com sucesso.")
     else:
         print(f"Chamado com código {codigo} não encontrado.")
 
-def salvar_chamados(chamados):
-    dados = [chamado.para_dict() for chamado in chamados]
-    with open("dados.json", "w", encoding="utf-8") as arquivo:
-        json.dump(dados, arquivo, ensure_ascii=False, indent=4)
-        
-
-def carregar_chamados():
-    try:
-        with open("dados.json", "r", encoding="utf-8") as arquivo:
-            dados = json.load(arquivo)
-
-    except FileNotFoundError:
-        print("Arquivo de dados não encontrado. Iniciando sistema vazio.")
-        return []
-
-    except json.JSONDecodeError:
-        print("Arquivo de dados vazio ou inválido. Iniciando sistema vazio.")
-        return []
-
-    chamados_carregados = []
-
-    for item in dados:
-        try:
-            chamado = Chamado(
-                item["codigo"],
-                item["categoria"],
-                item["prioridade"].capitalize(),
-                item["descricao"],
-                item["status"].capitalize()
-            )
-
-            chamados_carregados.append(chamado)
-
-        except KeyError:
-            print("Registro inválido encontrado no arquivo. Ignorando chamado.")
-            
-        return chamados_carregados
   
-  
-chamados = carregar_chamados()          
+db.criar_tabela()
+
+chamados = [
+    linha_para_chamado(linha)
+    for linha in db.listar_chamados()
+]        
 
 while True:
     print("\n--- Sistema de Chamados ---")
@@ -176,24 +168,24 @@ while True:
         status = input("Digite o status do chamado: ")   
         
         adicionar_chamado(chamados, codigo, categoria, prioridade, descricao, status)
-        salvar_chamados(chamados)    
+        #salvar_chamados(chamados)    
         
     elif opcao == "4":
         codigo = input("Digite o código do chamado: ")
         novo_status = input("Digite o novo status do chamado: ")
         atualizar_status_por_codigo(chamados, codigo, novo_status)
-        salvar_chamados(chamados)
+        #salvar_chamados(chamados)
         
     elif opcao == "5":
         codigo = input("Digite o código do chamado:")
         remover_chamado(chamados, codigo)
-        salvar_chamados(chamados)
+        #salvar_chamados(chamados)
 
     else:
         print("Opção inválida. Tente novamente.")
         
 
-salvar_chamados(chamados)
+#salvar_chamados(chamados)
 
 
     
