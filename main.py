@@ -139,6 +139,12 @@ while True:
     print("3 - Adicionar chamado")
     print("4 - Atualizar status")
     print("5 - Remover chamado")
+    print("6 - Filtrar chamados por status")
+    print("7 - Listar chamados por prioridade")
+    print("8 - Listar chamados por código")
+    print("9 - Filtrar chamados por prioridade")
+    print("10 - Filtrar por status e prioridade")
+    print("11 - Filtrar por status ou prioridade")
     print("0 - Sair")
 
     opcao = input("Escolha uma opção: ")
@@ -168,25 +174,102 @@ while True:
         status = input("Digite o status do chamado: ")   
         
         adicionar_chamado(chamados, codigo, categoria, prioridade, descricao, status)
-        #salvar_chamados(chamados)    
+          
         
     elif opcao == "4":
         codigo = input("Digite o código do chamado: ")
         novo_status = input("Digite o novo status do chamado: ")
         atualizar_status_por_codigo(chamados, codigo, novo_status)
-        #salvar_chamados(chamados)
+       
         
     elif opcao == "5":
         codigo = input("Digite o código do chamado:")
         remover_chamado(chamados, codigo)
-        #salvar_chamados(chamados)
-
-    else:
-        print("Opção inválida. Tente novamente.")
         
+  
 
-#salvar_chamados(chamados)
+    elif opcao == "6":
+        status = input("Digite o status que deseja buscar: ")
+
+        resultados = db.buscar_por_status(status)
+
+        if resultados:
+            for linha in resultados:
+                chamado = linha_para_chamado(linha)
+                print(chamado)
+        else:
+            print("Nenhum chamado encontrado com esse status.")
 
 
+    elif opcao == "7":
+        resultados = db.listar_por_prioridade()
+
+        if resultados:
+            for linha in resultados:
+                chamado = linha_para_chamado(linha)
+                print(chamado)
+        else:
+               print("Nenhum chamado cadastrado.")     
+     
+    elif opcao == "8":
+        ordem = input("Digite ASC para crescente ou DESC para decrescente: ").upper()
+
+        if ordem not in ["ASC", "DESC"]:
+           print("Ordem inválida. Escolha entre ASC ou DESC.")
+           continue
+       
+       
+        resultados = db.listar_por_codigo(ordem)
+        
+  
+        if resultados:
+            for linha in resultados:
+                chamado = linha_para_chamado(linha)
+                print(chamado)
+        else:
+            print("Nenhum chamado cadastrado.")
+            
+    elif opcao == "9":
+        prioridade = input("Digite a prioridade que deseja buscar: ")
+
+        resultados = db.buscar_por_prioridade(prioridade)
+
+        if resultados:
+            for linha in resultados:
+                chamado = linha_para_chamado(linha)
+                print(chamado)
+        else:
+            print("Nenhum chamado encontrado com essa prioridade.")
+            
+    elif opcao == "10":
+        status = input("Digite o status: ")
+        prioridade = input("Digite a prioridade: ")
+
+        resultados = db.buscar_por_status_e_prioridade(status, prioridade)
+
+        if resultados:
+            for linha in resultados:
+                chamado = linha_para_chamado(linha)
+                print(chamado)
+        else:
+            print("Nenhum chamado encontrado com esses filtros.")
+            
+            
+    elif opcao == "11":
+        status = input("Digite o status: ")
+        prioridade = input("Digite a prioridade: ")
+
+        resultados = db.buscar_por_status_ou_prioridade(status, prioridade)
+
+        if resultados:
+            for linha in resultados:
+                chamado = linha_para_chamado(linha)
+                print(chamado)
+        else:
+            print("Nenhum chamado encontrado com esses filtros.")                       
+            
+
+else:
+    print("Opção inválida. Tente novamente.")
     
     

@@ -52,19 +52,13 @@ def buscar_por_status(status):
     cursor.execute("""
         SELECT id, codigo, categoria, prioridade, descricao, status
         FROM chamados
-        WHERE status = ?
+        WHERE LOWER(status) = LOWER(?)
     """, (status,))
 
     chamados = cursor.fetchall()
 
     conexao.close()
     return chamados
-
-#print("Chamados abertos:")
-
-#for chamado in buscar_por_status("Aberto"):
-#    print(chamado)
-    
  
 def atualizar_status(codigo, novo_status):
     conexao = conectar()
@@ -78,6 +72,27 @@ def atualizar_status(codigo, novo_status):
 
     conexao.commit()
     conexao.close()   
+    
+def listar_por_prioridade():
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    cursor.execute("""
+        SELECT id, codigo, categoria, prioridade, descricao, status
+        FROM chamados
+        ORDER BY
+            CASE prioridade
+                WHEN 'Alta' THEN 1
+                WHEN 'Média' THEN 2
+                WHEN 'Baixa' THEN 3
+                ELSE 4
+            END
+    """)
+
+    chamados = cursor.fetchall()
+
+    conexao.close()
+    return chamados
    
 def excluir_chamado(codigo):
     conexao = conectar()
@@ -99,4 +114,77 @@ if __name__ == "__main__":
         print(chamado)  
 
 
+def listar_por_codigo(ordem="ASC"):
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    if ordem == "DESC":
+        consulta = """
+            SELECT id, codigo, categoria, prioridade, descricao, status
+            FROM chamados
+            ORDER BY codigo DESC
+        """
+    else:
+        consulta = """
+            SELECT id, codigo, categoria, prioridade, descricao, status
+            FROM chamados
+            ORDER BY codigo ASC
+        """
+
+    cursor.execute(consulta)
+
+    chamados = cursor.fetchall()
+
+    conexao.close()
+    return chamados
+
+
+def buscar_por_prioridade(prioridade):
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    cursor.execute("""
+        SELECT id, codigo, categoria, prioridade, descricao, status
+        FROM chamados
+        WHERE LOWER(prioridade) = LOWER(?)
+    """, (prioridade.strip(),))
+
+    chamados = cursor.fetchall()
+
+    conexao.close()
+    return chamados
+
+
+def buscar_por_status_e_prioridade(status, prioridade):
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    cursor.execute("""
+        SELECT id, codigo, categoria, prioridade, descricao, status
+        FROM chamados
+        WHERE LOWER(status) = LOWER(?)
+        AND LOWER(prioridade) = LOWER(?)
+    """, (status.strip(), prioridade.strip()))
+
+    chamados = cursor.fetchall()
+
+    conexao.close()
+    return chamados
+
+
+def buscar_por_status_ou_prioridade(status, prioridade):
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    cursor.execute("""
+        SELECT id, codigo, categoria, prioridade, descricao, status
+        FROM chamados
+        WHERE LOWER(status) = LOWER(?)
+        OR LOWER(prioridade) = LOWER(?)
+    """, (status.strip(), prioridade.strip()))
+
+    chamados = cursor.fetchall()
+
+    conexao.close()
+    return chamados
 
