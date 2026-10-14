@@ -145,6 +145,8 @@ while True:
     print("9 - Filtrar chamados por prioridade")
     print("10 - Filtrar por status e prioridade")
     print("11 - Filtrar por status ou prioridade")
+    print("12 - Buscar na descrição")
+    print("13 - Filtrar por descrição e status")
     print("0 - Sair")
 
     opcao = input("Escolha uma opção: ")
@@ -201,6 +203,8 @@ while True:
             print("Nenhum chamado encontrado com esse status.")
 
 
+
+
     elif opcao == "7":
         resultados = db.listar_por_prioridade()
 
@@ -210,7 +214,10 @@ while True:
                 print(chamado)
         else:
                print("Nenhum chamado cadastrado.")     
-     
+    
+    
+    
+ 
     elif opcao == "8":
         ordem = input("Digite ASC para crescente ou DESC para decrescente: ").upper()
 
@@ -228,7 +235,9 @@ while True:
                 print(chamado)
         else:
             print("Nenhum chamado cadastrado.")
-            
+    
+    
+             
     elif opcao == "9":
         prioridade = input("Digite a prioridade que deseja buscar: ")
 
@@ -240,7 +249,9 @@ while True:
                 print(chamado)
         else:
             print("Nenhum chamado encontrado com essa prioridade.")
-            
+      
+      
+           
     elif opcao == "10":
         status = input("Digite o status: ")
         prioridade = input("Digite a prioridade: ")
@@ -253,8 +264,9 @@ while True:
                 print(chamado)
         else:
             print("Nenhum chamado encontrado com esses filtros.")
-            
-            
+       
+       
+                   
     elif opcao == "11":
         status = input("Digite o status: ")
         prioridade = input("Digite a prioridade: ")
@@ -266,7 +278,36 @@ while True:
                 chamado = linha_para_chamado(linha)
                 print(chamado)
         else:
-            print("Nenhum chamado encontrado com esses filtros.")                       
+            print("Nenhum chamado encontrado com esses filtros.")       
+        
+        
+        
+    elif opcao == "12":
+        termo = input("Digite o termo que deseja buscar na descrição: ")
+
+        resultados = db.buscar_por_descricao(termo)
+
+        if resultados:
+            for linha in resultados:
+                chamado = linha_para_chamado(linha)
+                print(chamado)
+        else:
+            print("Nenhum chamado encontrado com esse termo na descrição.")                        
+    
+
+    
+    elif opcao == "13":
+        termo = input("Digite o termo que deseja buscar na descrição: ")
+        status = input("Digite o status: ")
+
+        resultados = db.buscar_por_descricao_e_status(termo, status)
+
+        if resultados:
+            for linha in resultados:
+                chamado = linha_para_chamado(linha)
+                print(chamado)
+        else:
+            print("Nenhum chamado encontrado com esses filtros.")
             
 
 else:

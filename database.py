@@ -221,3 +221,35 @@ def buscar_por_categoria_e_prioridade(categoria, prioridade):
     return chamados
 
 
+def buscar_por_descricao(termo):
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    cursor.execute("""
+        SELECT id, codigo, categoria, prioridade, descricao, status
+        FROM chamados
+        WHERE LOWER(descricao) LIKE LOWER(?)
+    """, (f"%{termo.strip()}%",))
+
+    chamados = cursor.fetchall()
+
+    conexao.close()
+    return chamados
+
+
+def buscar_por_descricao_e_status(termo,status):
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    cursor.execute("""
+        SELECT id, codigo, categoria, prioridade, descricao, status
+        FROM chamados
+        WHERE LOWER(descricao) LIKE LOWER(?)
+        AND LOWER(status) = LOWER(?)
+    """, (f"%{termo.strip()}%", status.strip()))
+
+    chamados = cursor.fetchall()
+
+    conexao.close()
+    return chamados
+   
