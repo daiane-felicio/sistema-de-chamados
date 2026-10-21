@@ -253,3 +253,68 @@ def buscar_por_descricao_e_status(termo,status):
     conexao.close()
     return chamados
    
+
+def contar_por_status(status):
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM chamados
+        WHERE LOWER(status) = LOWER(?)
+    """, (status.strip(),))
+
+    count = cursor.fetchone()[0]
+
+    conexao.close()
+    return count   
+
+def contar_todos_por_status():
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    cursor.execute("""
+        SELECT status, COUNT(*)
+        FROM chamados
+        GROUP BY status
+    """)
+
+    resultados = cursor.fetchall()
+
+    conexao.close()
+    return resultados
+
+
+def contar_todas_por_prioridade():
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    cursor.execute("""
+        SELECT prioridade, COUNT(*) AS quantidade
+        FROM chamados
+        GROUP BY prioridade
+        ORDER BY quantidade DESC
+    """)
+
+    resultados = cursor.fetchall()
+
+    conexao.close()
+    return resultados
+
+def contar_prioridade_ordenadas():
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    cursor.execute("""
+        SELECT prioridade, COUNT(*) AS quantidade
+        FROM chamados
+        GROUP BY prioridade
+        ORDER BY quantidade DESC
+    """)
+
+    resultados = cursor.fetchall()
+
+    conexao.close()
+    return resultados
+
+print(contar_prioridade_ordenadas())
