@@ -1,3 +1,4 @@
+from datetime import datetime
 import sqlite3
 
 def conectar():
@@ -15,18 +16,109 @@ def criar_tabela():
             categoria TEXT NOT NULL,
             prioridade TEXT NOT NULL,
             descricao TEXT NOT NULL,
-            status TEXT NOT NULL
+            status TEXT NOT NULL,
+            data_abertura TEXT,
+            data_atualizacao TEXT,
+            data_fechamento TEXT
         )
     """)
+
+    conexao.commit()
+    conexao.close()
+    
+    
+def migrar_colunas_datas():
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    cursor.execute("PRAGMA table_info(chamados)")
+    colunas = {coluna[1] for coluna in cursor.fetchall()}
+
+    if "data_abertura" not in colunas:
+        cursor.execute("""
+            ALTER TABLE chamados
+            ADD COLUMN data_abertura TEXT
+        """)
+
+    if "data_atualizacao" not in colunas:
+        cursor.execute("""
+            ALTER TABLE chamados
+            ADD COLUMN data_atualizacao TEXT
+        """)
+
+    if "data_fechamento" not in colunas:
+        cursor.execute("""
+            ALTER TABLE chamados
+            ADD COLUMN data_fechamento TEXT
+        """)
+
+    conexao.commit()
+    conexao.close()    
+    
 def adicionar_chamado(codigo, categoria, prioridade, descricao, status):
     conexao = conectar()
     cursor = conexao.cursor()
 
+    data_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
     cursor.execute("""
         INSERT INTO chamados
-        (codigo, categoria, prioridade, descricao, status)
-        VALUES (?, ?, ?, ?, ?)
-    """, (codigo, categoria, prioridade, descricao, status))
+        (
+            codigo,
+            categoria,
+            prioridade,
+            descricao,
+            status,
+            data_abertura,
+            data_atualizacao
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (
+        codigo,
+        categoria,
+        prioridade,
+        descricao,
+        status,
+        data_hora,
+        data_hora
+    ))
+
+    conexao.commit()
+    conexao.close()    
+    
+    
+def atualizar_status(codigo, novo_status):
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    data_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    if novo_status.lower() == "fechado":
+        cursor.execute("""
+            UPDATE chamados
+            SET status = ?,
+                data_atualizacao = ?,
+                data_fechamento = ?
+            WHERE codigo = ?
+        """, (
+            novo_status,
+            data_hora,
+            data_hora,
+            codigo
+        ))
+
+    else:
+        cursor.execute("""
+            UPDATE chamados
+            SET status = ?,
+                data_atualizacao = ?,
+                data_fechamento = NULL
+            WHERE codigo = ?
+        """, (
+            novo_status,
+            data_hora,
+            codigo
+        ))
 
     conexao.commit()
     conexao.close()
@@ -36,8 +128,17 @@ def listar_chamados():
     cursor = conexao.cursor()
 
     cursor.execute("""
-        SELECT id, codigo, categoria, prioridade, descricao, status
-        FROM chamados
+       SELECT
+    id,
+    codigo,
+    categoria,
+    prioridade,
+    descricao,
+    status,
+    data_abertura,
+    data_atualizacao,
+    data_fechamento
+FROM chamados
     """)
 
     chamados = cursor.fetchall()
@@ -50,7 +151,7 @@ def buscar_por_status(status):
     cursor = conexao.cursor()
 
     cursor.execute("""
-        SELECT id, codigo, categoria, prioridade, descricao, status
+        SELECT id, codigo, categoria, prioridade, descricao, status, data_abertura, data_atualizacao, data_fechamento
         FROM chamados
         WHERE LOWER(status) = LOWER(?)
     """, (status,))
@@ -60,25 +161,13 @@ def buscar_por_status(status):
     conexao.close()
     return chamados
  
-def atualizar_status(codigo, novo_status):
-    conexao = conectar()
-    cursor = conexao.cursor()
-
-    cursor.execute("""
-        UPDATE chamados
-        SET status = ?
-        WHERE codigo = ?
-    """, (novo_status, codigo))
-
-    conexao.commit()
-    conexao.close()   
     
 def listar_por_prioridade():
     conexao = conectar()
     cursor = conexao.cursor()
 
     cursor.execute("""
-        SELECT id, codigo, categoria, prioridade, descricao, status
+        SELECT id, codigo, categoria, prioridade, descricao, status, data_abertura, data_atualizacao, data_fechamento
         FROM chamados
         ORDER BY
             CASE prioridade
@@ -106,27 +195,19 @@ def excluir_chamado(codigo):
     conexao.commit()
     conexao.close()
    
-if __name__ == "__main__":
-    criar_tabela()
-
-
-    for chamado in listar_chamados():
-        print(chamado)  
-
-
 def listar_por_codigo(ordem="ASC"):
     conexao = conectar()
     cursor = conexao.cursor()
 
     if ordem == "DESC":
         consulta = """
-            SELECT id, codigo, categoria, prioridade, descricao, status
+            SELECT id, codigo, categoria, prioridade, descricao, status, data_abertura, data_atualizacao, data_fechamento
             FROM chamados
             ORDER BY codigo DESC
         """
     else:
         consulta = """
-            SELECT id, codigo, categoria, prioridade, descricao, status
+            SELECT id, codigo, categoria, prioridade, descricao, status, data_abertura, data_atualizacao, data_fechamento
             FROM chamados
             ORDER BY codigo ASC
         """
@@ -144,7 +225,7 @@ def buscar_por_prioridade(prioridade):
     cursor = conexao.cursor()
 
     cursor.execute("""
-        SELECT id, codigo, categoria, prioridade, descricao, status
+        SELECT id, codigo, categoria, prioridade, descricao, status, data_abertura, data_atualizacao, data_fechamento
         FROM chamados
         WHERE LOWER(prioridade) = LOWER(?)
     """, (prioridade.strip(),))
@@ -160,7 +241,7 @@ def buscar_por_status_e_prioridade(status, prioridade):
     cursor = conexao.cursor()
 
     cursor.execute("""
-        SELECT id, codigo, categoria, prioridade, descricao, status
+        SELECT id, codigo, categoria, prioridade, descricao, status, data_abertura, data_atualizacao, data_fechamento
         FROM chamados
         WHERE LOWER(status) = LOWER(?)
         AND LOWER(prioridade) = LOWER(?)
@@ -177,7 +258,7 @@ def buscar_por_status_ou_prioridade(status, prioridade):
     cursor = conexao.cursor()
 
     cursor.execute("""
-        SELECT id, codigo, categoria, prioridade, descricao, status
+        SELECT id, codigo, categoria, prioridade, descricao, status, data_abertura, data_atualizacao, data_fechamento
         FROM chamados
         WHERE LOWER(status) = LOWER(?)
         OR LOWER(prioridade) = LOWER(?)
@@ -194,7 +275,7 @@ def buscar_por_categoria(categoria):
     cursor = conexao.cursor()
 
     cursor.execute("""
-        SELECT id, codigo, categoria, prioridade, descricao, status
+        SELECT id, codigo, categoria, prioridade, descricao, status, data_abertura, data_atualizacao, data_fechamento
         FROM chamados
         WHERE LOWER(categoria) = LOWER(?)
     """, (categoria.strip(),))
@@ -209,7 +290,7 @@ def buscar_por_categoria_e_prioridade(categoria, prioridade):
     cursor = conexao.cursor()
 
     cursor.execute("""
-        SELECT id, codigo, categoria, prioridade, descricao, status
+        SELECT id, codigo, categoria, prioridade, descricao, status, data_abertura, data_atualizacao, data_fechamento
         FROM chamados
         WHERE LOWER(categoria) = LOWER(?)
         AND LOWER(prioridade) = LOWER(?)
@@ -226,7 +307,7 @@ def buscar_por_descricao(termo):
     cursor = conexao.cursor()
 
     cursor.execute("""
-        SELECT id, codigo, categoria, prioridade, descricao, status
+        SELECT id, codigo, categoria, prioridade, descricao, status, data_abertura, data_atualizacao, data_fechamento
         FROM chamados
         WHERE LOWER(descricao) LIKE LOWER(?)
     """, (f"%{termo.strip()}%",))
@@ -242,7 +323,7 @@ def buscar_por_descricao_e_status(termo,status):
     cursor = conexao.cursor()
 
     cursor.execute("""
-        SELECT id, codigo, categoria, prioridade, descricao, status
+        SELECT id, codigo, categoria, prioridade, descricao, status, data_abertura, data_atualizacao, data_fechamento
         FROM chamados
         WHERE LOWER(descricao) LIKE LOWER(?)
         AND LOWER(status) = LOWER(?)
@@ -252,6 +333,19 @@ def buscar_por_descricao_e_status(termo,status):
 
     conexao.close()
     return chamados
+
+if __name__ == "__main__":
+    criar_tabela()
+    migrar_colunas_datas()
+
+    for chamado in listar_chamados():
+        print(chamado)
+
+
+atualizar_status("CH005", "Fechado")
+
+
+    
    
 
 def contar_por_status(status):
